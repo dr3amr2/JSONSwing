@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="default" name="JSONSwing">
+    <property environment="env"/>
+    <property name="ECLIPSE_HOME" value="/usr/lib/eclipse"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="JSONSwing.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="/usr/share/java/google-gson-1.7.1/gson-1.7.1.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="init-test" depends="init">
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="tst">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+	
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+	
+    <target depends="clean" name="cleanall"/>
+    
+    <target depends="init" name="build">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="JSONSwing.classpath"/>
+        </javac>
+    </target>
+
+    <target depends="init-test" name="build-test">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="JSONSwing.classpath"/>
+        </javac>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="tst"/>
+            <classpath refid="JSONSwing.classpath"/>
+        </javac>
+    </target>
+	
+	<target depends="build-test" name="test">
+		<junit printsummary="false" haltonfailure="true">
+			<classpath refid="JSONSwing.classpath"/>
+			<formatter type="brief" usefile="false"/>
+
+			<batchtest todir="${test.data.dir}">
+				<fileset dir="bin" includes="**/*Test.class"/>
+			</batchtest>
+		</junit>
+	</target>
+	
+	<target name="default" depends="test"/>
+</project>
