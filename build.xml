@@ -114,6 +114,6 @@ Note before attempting to build this project ensure you set up symlinks to the f
 	    	<attribute name="Implementation-Version" value="${version.num}-b${build.number}"/> 
 	    	<attribute name="Built-Date" value="${TODAY}"/>    
 	    </manifest>
-		<jar destfile="JSONSwing-${version.num}-b${build.number}.jar" basedir="bin" includes="**/*" manifest="MANIFEST.MF"/>
+		<jar destfile="release/JSONSwing-${version.num}-b${build.number}.jar" basedir="bin" includes="**/*" manifest="MANIFEST.MF"/>
 	</target>
 </project>
