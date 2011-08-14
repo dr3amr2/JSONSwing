@@ -100,4 +100,20 @@ Note before attempting to build this project ensure you set up symlinks to the f
 	</target>
 	
 	<target name="default" depends="test"/>
+	
+	<target name="release" depends="clean,build">
+		<delete file="hello.jar"/>
+	    <delete file="MANIFEST.MF"/>
+		<property name="version.num" value="0.1"/>
+		<buildnumber file="build.num"/>
+		<tstamp>
+		     <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
+		</tstamp>
+	    <manifest file="MANIFEST.MF">
+	    	<attribute name="Built-By" value="${user}"/>	        
+	    	<attribute name="Implementation-Version" value="${version.num}-b${build.number}"/> 
+	    	<attribute name="Built-Date" value="${TODAY}"/>    
+	    </manifest>
+		<jar destfile="JSONSwing-${version.num}-b${build.number}.jar" basedir="bin" includes="**/*" manifest="MANIFEST.MF"/>
+	</target>
 </project>
