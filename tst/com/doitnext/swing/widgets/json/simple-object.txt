@@ -1,0 +1,10 @@
+{
+   "string": "Jack (\"Bee\") Nimble", 
+   "boolean-true": true,
+   "boolean-false": false,
+   "null-value": null,
+   "int-value": 12345,
+   "float-value": 124.45,
+   "signed-float": -123.45,
+   "exponent": -123.4e23
+}
