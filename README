@@ -1,0 +1,23 @@
+JSONSwing implements Swing Based Editor tools including a JTree based control 
+that can be embedded in other swing applications to enable viewing and editing
+JSON with a point and right click edit metaphor. Values are updated with a 
+simple property dialog. Also included is a complete JSON Edit dialog that can
+be invoked to view and optionally modify JSON using the JTree control as well
+as providing the ability to grab snippets of JSON from the object model.
+
+
+@author Stephen Owens
+  
+  Copyright 2011 Stephen P. Owens : steve@doitnext.com
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
