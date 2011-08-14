@@ -100,6 +100,21 @@ Note before attempting to build this project ensure you set up symlinks to the f
 	</target>
 	
 	<target name="default" depends="test"/>
+
+	<target name="javadoc">
+		<javadoc sourcepath="src"
+	           defaultexcludes="yes"
+	           destdir="docs/javadoc"
+	           author="true"
+	           version="true"
+	           use="true"
+			   classpathref="JSONSwing.classpath"
+	           windowtitle="JSONSwing API">
+	    	<doctitle><![CDATA[<h1>JSONSwing API</h1>]]></doctitle>
+	    	<bottom><![CDATA[<i>Copyright &#169; 2011 Stephen P. Owens. All Rights Reserved.</i>]]></bottom>
+	    	<tag name="todo" scope="all" description="TODO:"/>
+		</javadoc>
+	</target>
 	
 	<target name="release" depends="clean,build">
 		<delete file="hello.jar"/>
