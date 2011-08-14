@@ -9,9 +9,13 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 /**
+ * <p>Provides the model for translating JsonElement into JTree data nodes.  This class is not thread safe.</p>
+ * 
  * @author Stephen Owens
  * 
  * <p>Provides the model for translating JsonElement into JTree data nodes.</p>
@@ -42,10 +46,10 @@ public class JSONJTreeNode extends DefaultMutableTreeNode {
 	private static final long serialVersionUID = 1L;
 
 	public enum DataType {ARRAY, OBJECT, VALUE};
-	private final DataType dataType;
-	private final int index;
-	private final String fieldName;
-	private final String value;
+	final DataType dataType;
+	final int index;
+	String fieldName;
+	final String value;
 	
 	/**
 	 * @param fieldName - name of field if applicable or null
@@ -101,7 +105,26 @@ public class JSONJTreeNode extends DefaultMutableTreeNode {
 	public JsonElement asJsonElement() {
 		StringBuilder sb = new StringBuilder();
 		buildJsonString(sb);
-		return new JsonParser().parse(sb.toString());
+		String json = sb.toString().trim();
+		if(json.startsWith("{") || json.startsWith("["))		
+			return new JsonParser().parse(sb.toString());
+		else {
+			// Safety check the JSON, if it is of a named value object
+			// We cheat a little if it is an orphan name value pair then
+			// if we wrap it in {} chars it will parse if it isn't the parse
+			// fails.			
+			String testValue = "{" + json + "}";
+			try {
+				JsonElement wrapperElt = new JsonParser().parse(testValue);
+				JsonObject obj = (JsonObject) wrapperElt;
+				Iterator<Entry<String,JsonElement>> it = obj.entrySet().iterator();
+				Entry<String,JsonElement> entry = it.next();
+				return entry.getValue();
+			} catch(JsonSyntaxException jse) {
+				JsonElement rawElement = new JsonParser().parse(json);
+				return rawElement;
+			}			
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -147,14 +170,21 @@ public class JSONJTreeNode extends DefaultMutableTreeNode {
 		case ARRAY:
 		case OBJECT:
 			if(index >= 0) {
-				return String.format("[%d] %s", index, fieldName);
-			} else 
-				return String.format(" %s", fieldName);
+				return String.format("[%d] (%s)", index, dataType.name());
+			} else if(fieldName != null) {
+				return String.format("%s (%s)", fieldName, dataType.name());
+			} else {
+				return String.format("(%s)", dataType.name());
+			}
 		default:
 			if(index >= 0) {
-				return String.format("[%d] %s: %s", index, fieldName, value);
-			} else 
-				return String.format(" %s: %s", fieldName, value);
+				return String.format("[%d] %s", index, value);
+			} else if(fieldName != null) {
+				return String.format("%s: %s", fieldName, value);
+			} else {
+				return String.format("%s", value);
+			}
+			
 		}
 	}
 }
