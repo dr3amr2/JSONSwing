@@ -64,8 +64,17 @@ link names in column 2 of the table:</p>
 
 <p>Note the junit.jar and the hamcrest-core.jar files are only used during unit testing.  If you are simply using the release build these dependencies are not required.</p>
 
-<h2>Screenshot</h2>
+<h2>Screenshot and Overview</h2>
 <img src="Screenshot-Testing JSONEditFrame.png"/>
+
+<p>The screenshot above shows the JSONEditFrame in action.  The JSONEditFrame has the ability to be use (almost as a dialog) or as a full blown main frame. There are 2 rows of buttons
+on the dialog flavor of the frame.  The top row (just below the text area) are for manipulating the JSON object model maintained by the Tree view.  You can click on a node in the tree and
+"Get" the JSON which will replace the contents of the text area.  You can edit the contents of the text area, select a node in the tree and use one of the available manipulation buttons to
+"Replace" a selected node, "Insert" before the selected node, "Append" (e.g. Insert after the selected node), add a "New Child" to a selected node.  You can also "Rename" a node which belongs
+to an Object parent.  You can "Delete" the selected node as well.
+
+<p>When you click OK the calling code can get the JSON from the edit frame and do with it what it wishes.</p>
+
 
 <h2>Install</h2>
 <p>Get the dependencies from the project sites, set up symlinks to them in the project lib directory if you want to build the project.
