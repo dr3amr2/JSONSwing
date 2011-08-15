@@ -1,6 +1,8 @@
 package com.doitnext.swing.widgets.json;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Enumeration;
 
 import javax.swing.JOptionPane;
@@ -53,6 +55,7 @@ public class JSONEditPanel extends JPanel {
 	JTree jTree;
 	
 	public enum UpdateType { REPLACE, INSERT, APPEND, AS_CHILD };
+	public enum AllowedOps { REPLACE, INSERT, APPEND, AS_CHILD, DELETE, RENAME, GET_JSON };
 	
 	/**
 	 * Default constructor for the JSONEditPanel object.
@@ -67,6 +70,11 @@ public class JSONEditPanel extends JPanel {
 		add(new JScrollPane(jTree), BorderLayout.CENTER);
 	}
 	
+	/**
+	 * Allow the owner of the component to listen for tree selection events.
+	 * 
+	 * @param tsl A handler for tree selection events
+	 */
 	public void addTreeSelectionListener(TreeSelectionListener tsl) {
 		jTree.addTreeSelectionListener(tsl);
 	}
@@ -87,10 +95,16 @@ public class JSONEditPanel extends JPanel {
 	@SuppressWarnings("unchecked")
 	public void setJson(String json, UpdateType updateType) {
 		TreePath selection = jTree.getSelectionPath();
-		if(selection == null && updateType == UpdateType.REPLACE) {
-			JsonElement root = new JsonParser().parse(json);
-			JSONJTreeNode rootNode = new JSONJTreeNode(null, -1, root);
-			jTree.setModel(new DefaultTreeModel(rootNode));
+		if(selection == null) {
+			if(updateType == UpdateType.REPLACE) {
+				JsonElement root = new JsonParser().parse(json);
+				JSONJTreeNode rootNode = new JSONJTreeNode(null, -1, root);
+				jTree.setModel(new DefaultTreeModel(rootNode));				
+			} else {
+				JOptionPane.showMessageDialog(this,
+						 "Only replace JSON and get JSON are supported when no node is selected.",
+						 "Notice", JOptionPane.INFORMATION_MESSAGE);
+			}
 		} else {
 			JSONJTreeNode selectedNode = (JSONJTreeNode) selection.getLastPathComponent();
 			JSONJTreeNode parent = (JSONJTreeNode)selectedNode.getParent();	
@@ -112,8 +126,11 @@ public class JSONEditPanel extends JPanel {
 				break;
 			case INSERT:
 			case APPEND: {
-					if(parent == null)
-						return; // TODO: Notify User that this is ignored operation
+					if(parent == null) {
+						JOptionPane.showMessageDialog(this,
+								 "You cannot append to the root element.", "Notice", JOptionPane.INFORMATION_MESSAGE);
+						return;
+					}
 					JsonElement root = new JsonParser().parse(json);
 					JSONJTreeNode replacementNode = new JSONJTreeNode(selectedNode.fieldName, selectedNode.index, root);
 					int index = selectedNode.getParent().getIndex(selectedNode);
@@ -138,9 +155,11 @@ public class JSONEditPanel extends JPanel {
 					}
 					else if(selectedNode.dataType.equals(JSONJTreeNode.DataType.OBJECT))
 						fieldName = "new-field";
-					else 
-						return;  // TODO: Display message to user indicating aborted op.
-					
+					else  {
+						JOptionPane.showMessageDialog(this,
+								 "Vaue type entities can not have children.", "Notice", JOptionPane.INFORMATION_MESSAGE);
+						return;
+					}
 					JSONJTreeNode newNode = new JSONJTreeNode(fieldName, arrayIndex, root);
 					selectedNode.add(newNode);
 					((DefaultTreeModel)jTree.getModel()).reload(selectedNode);
@@ -155,15 +174,23 @@ public class JSONEditPanel extends JPanel {
 	 */
 	public void renameNode() {
 		TreePath selection = jTree.getSelectionPath();
-		if(selection == null)
-			return; // TODO: Notify user no node selected
+		if(selection == null){
+		 JOptionPane.showMessageDialog(this,
+				 "No node is selected for rename.", "Notice", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}	
 		JSONJTreeNode node = (JSONJTreeNode) selection.getLastPathComponent();
 		JSONJTreeNode parent = (JSONJTreeNode) node.getParent();
-		if(parent == null)
-			return; // TODO: Notify user cannot rename a root node.
-		
-		if(!parent.dataType.equals(JSONJTreeNode.DataType.OBJECT))
-			return; // TODO: Nofify user cannot rename a node that isn't a field.
+		if(parent == null) {
+			 JOptionPane.showMessageDialog(this,
+					 "It is not possible to assign a name to the root node.", "Notice", JOptionPane.INFORMATION_MESSAGE);
+			return; 
+		}
+		if(!parent.dataType.equals(JSONJTreeNode.DataType.OBJECT)){
+			 JOptionPane.showMessageDialog(this,
+					 "Only object fields may be renamed.", "Notice", JOptionPane.INFORMATION_MESSAGE);
+			return; 
+		}
 		
 		String newName = JOptionPane.showInputDialog ( "Enter new name for " + node.fieldName );
 		node.fieldName = newName;
@@ -210,5 +237,38 @@ public class JSONEditPanel extends JPanel {
 			return node.asJsonElement().toString();
 		else
 			return null;
+	}
+	
+	/**
+	 * Determine what can currently be asked of the component in terms of tree modifiation operations.
+	 * 
+	 * @return a list of AllowedOps enumerations to indicate the commands that are currently allowed upon the Component
+	 */
+	public List<AllowedOps> getAllowedOperations() {
+		List<AllowedOps> result = new ArrayList<AllowedOps>();
+		result.add(AllowedOps.REPLACE);
+		result.add(AllowedOps.GET_JSON);
+		
+		TreePath selection = jTree.getSelectionPath();
+		if(selection == null)
+			return result;
+		
+		JSONJTreeNode selectedNode = (JSONJTreeNode) selection.getLastPathComponent();
+		JSONJTreeNode parentNode = null;
+		
+		if(selectedNode != null) {
+			result.add(AllowedOps.DELETE);
+			parentNode = (JSONJTreeNode) selectedNode.getParent();
+		}
+		if(parentNode != null) {
+			result.add(AllowedOps.APPEND);
+			result.add(AllowedOps.INSERT);
+		}
+		if(selectedNode.dataType.equals(JSONJTreeNode.DataType.ARRAY) ||
+				selectedNode.dataType.equals(JSONJTreeNode.DataType.OBJECT)	)
+			result.add(AllowedOps.AS_CHILD);
+		if((parentNode != null) && (parentNode.dataType.equals(JSONJTreeNode.DataType.OBJECT)))
+			result.add(AllowedOps.RENAME);
+		return result;
 	}
 }

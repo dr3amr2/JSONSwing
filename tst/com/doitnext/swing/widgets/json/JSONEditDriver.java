@@ -1,5 +1,8 @@
 package com.doitnext.swing.widgets.json;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 /**
  * Launches an instance of JSONEditPanel for testing.
  * 
@@ -25,13 +28,36 @@ package com.doitnext.swing.widgets.json;
  * limitations under the License.
  * </p>
  */
-public class JSONEditDriver {
-
+public class JSONEditDriver implements OKCancelListener {
+	private JSONEditFrame theFrame; 
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new JSONEditFrame("Testing JSONEditFrame", "{}");
+		new JSONEditDriver();		
+	}
+
+	private JSONEditDriver() {
+		theFrame = new JSONEditFrame(this, "Testing JSONEditFrame", "{}");
+	}
+	
+	@Override
+	public void onFrameAction(Action action, JFrame frame) {
+		if(theFrame == frame) {
+			String json = theFrame.getJson();
+			theFrame.closeWindow();
+			if(action.equals(Action.OK)) {
+				JOptionPane.showMessageDialog(null,
+						 json, "Resulting JSON", JOptionPane.INFORMATION_MESSAGE);
+			} else if(action.equals(Action.DEFAULT_CLOSE)) {
+				JOptionPane.showMessageDialog(null,
+						 "The default close button was clicked", "User Hit Default Close", JOptionPane.INFORMATION_MESSAGE);
+			} else{
+				JOptionPane.showMessageDialog(null,
+						 "The cancel button was clicked", "User Hit Cancel", JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
 	}
 
 }
