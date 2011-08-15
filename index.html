@@ -80,6 +80,17 @@ to an Object parent.  You can "Delete" the selected node as well.
 <p>Get the dependencies from the project sites, set up symlinks to them in the project lib directory if you want to build the project.
 
 If you just want to use the binary distribution simply ensure that the release jar file for JSONSwing along with it's dependencies are in your classpath.  If using the release distribution you don't need Junit or hamcrest.</p>
+
+<h2>Using in an App</h2>
+<img src="Code1.png"/>
+
+<p>The above code is what displayed the edit frame in the screenshot above.  To use as a "modal" dialog simply implement an <code>OKCancelListener</code>.
+Then instantiate the frame like this <code>theFrame = new JSONEditFrame(this, "Testing JSONEditFrame", "{}");</code>  The first argument to the constructor
+provides a reference to the OKCancelListener.  This is JSONEditFrame's clue that this frame should be used as a dialog (and provide OK/CANCEL buttons).</p>
+<p>The second argument is the frame title, and the last argument is the JSON to initialize the model with.</p>
+<p>When the user clicks: OK, CANCEL or the Default Close button the <code>public void onFrameAction(Action action, JFrame frame)</code> method in your 
+listener will be called.  You can look at the Action and decide what to do.</p>
+
 <h2>License</h2>
 <p>Apache 2.0</p>
 <h2>Authors</h2>
